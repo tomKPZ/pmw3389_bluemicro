@@ -1,8 +1,9 @@
 #include <PMW3360.h>
-/* 
+/*
 Frame capture (=Camera) mode:
 This mode disables navigation and overwrites any downloaded firmware.
-A hardware reset is required to restore navigation, and the firmware must be reloaded.
+A hardware reset is required to restore navigation, and the firmware must be
+reloaded.
 
 # PIN CONNECTION
   * MI = MISO
@@ -12,28 +13,29 @@ A hardware reset is required to restore navigation, and the firmware must be rel
   * MT = Motion (active low interrupt line)
   * RS = Reset
   * GD = Ground
-  * VI = Voltage in up to +5.5V 
+  * VI = Voltage in up to +5.5V
 
 Module   Arduino
   RS --- (NONE)
   GD --- GND
   MT --- (NONE)
   SS --- Pin_10   (use this pin to initialize a PMW3360 instance)
-  SC --- SCK 
+  SC --- SCK
   MO --- MOSI
   MI --- MISO
   VI --- 5V
  */
 
-#define SS  10   // Slave Select pin. Connect this to SS on the module.
+#define SS 10 // Slave Select pin. Connect this to SS on the module.
 
 PMW3360 sensor;
 
 void setup() {
-  Serial.begin(9600);  
-  while(!Serial);
-  
-  if(sensor.begin(SS))  // 10 is the pin connected to SS of the module.
+  Serial.begin(9600);
+  while (!Serial)
+    ;
+
+  if (sensor.begin(SS)) // 10 is the pin connected to SS of the module.
     Serial.println("Sensor initialization successed");
   else
     Serial.println("Sensor initialization failed");
@@ -46,8 +48,7 @@ void loop() {
   // The following routine shoud be alwyas performed together.
   // BEGIN -------------------------------------------------
   sensor.prepareImage();
-  for(int i=0;i<36*36;i++)
-  {
+  for (int i = 0; i < 36 * 36; i++) {
     byte pixel = sensor.readImagePixel();
     Serial.print(pixel, DEC);
     Serial.print(' ');
@@ -86,26 +87,26 @@ void draw()
   if(myPort.available() > 0)
   {
     String s = myPort.readStringUntil(lf);
-    
+
     if(s != null)
     {
       int[] nums = int(split(trim(s), ' '));
-      
+
       if(nums.length == 36*36+1)
       {
         val = nums;
       }
     }
   }
-  
+
   if(val == null)
   {
     background(0);
     return;
   }
-  
+
   background(0);
- 
+
   noStroke();
   for(int i=0;i<36;i++)
   {
@@ -116,9 +117,9 @@ void draw()
       rect(i*10, (35-j)*10, 10, 10);
     }
   }
-  
+
   int squal = val[36*36];
-  
+
   fill(255);
   text("SQUAL = "+squal, 10, 375);
 }
