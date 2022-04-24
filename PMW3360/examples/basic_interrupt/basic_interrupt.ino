@@ -1,8 +1,4 @@
-#include "PMW3360/src/PMW3360.h"
-// This is a hack to workaround the seeming inability to add this file
-// to the build.
-#include "PMW3360/src/PMW3360.cpp"
-
+#include <PMW3360.h>
 /* 
 
 # PIN CONNECTION
@@ -18,7 +14,7 @@
 Module   Arduino
   RS --- (NONE)
   GD --- GND
-  MT --- (NONE)
+  MT --- Pin_2    (need to be interrupt support pin, in UNO, Pin2, Pin3)
   SS --- Pin_10   (use this pin to initialize a PMW3360 instance)
   SC --- SCK 
   MO --- MOSI
@@ -40,15 +36,14 @@ Module   Arduino
                                raw data values within normal operating ranges.
  */
 
-#define SS  28   // Slave Select pin. Connect this to SS on the module.
+
+#define MOT 2   // motion interrupt pin, connect this pin to MT on the module.
+#define SS  10   // Slave Select pin. Connect this to SS on the module.
 
 PMW3360 sensor;
+volatile bool motion = false;
 
 void setup() {
-  pinMode(12, OUTPUT);
-  digitalWrite(12, HIGH);
-  delay(100);
-  
   Serial.begin(9600);  
   while(!Serial);
   
@@ -57,20 +52,35 @@ void setup() {
     Serial.println("Sensor initialization successed");
   else
     Serial.println("Sensor initialization failed");
-  
+
   //sensor.setCPI(1600);    // or, you can set CPI later by calling setCPI();
+  
+  pinMode(MOT, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(MOT), motionDetected, FALLING);
+
+  // if motion interrupt pin is already low, read it from the first loop.
+  if(digitalRead(MOT) == LOW)
+    motion = true;
 }
 
 void loop() {
-  PMW3360_DATA data = sensor.readBurst();
   
-  if(data.isOnSurface && data.isMotion)
+  if(motion)
   {
+    cli();      // disable interrupt during motion data processing.
+    PMW3360_DATA data = sensor.readBurst(); // read sensor data.
     Serial.print(data.dx);
     Serial.print("\t");
     Serial.print(data.dy);
     Serial.println();
+
+    motion = false;
+    sei();      // enable interrupt again.
   }
-  
-  delay(10);
 }
+
+void motionDetected() // interrupt service routine should be minimized.
+{
+  motion = true;    // flag setting.
+}
+

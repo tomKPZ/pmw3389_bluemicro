@@ -1,7 +1,4 @@
-#include "PMW3360/src/PMW3360.h"
-// This is a hack to workaround the seeming inability to add this file
-// to the build.
-#include "PMW3360/src/PMW3360.cpp"
+#include <PMW3360.h>
 
 /* 
 
@@ -40,15 +37,11 @@ Module   Arduino
                                raw data values within normal operating ranges.
  */
 
-#define SS  28   // Slave Select pin. Connect this to SS on the module.
+#define SS  10   // Slave Select pin. Connect this to SS on the module.
 
 PMW3360 sensor;
 
 void setup() {
-  pinMode(12, OUTPUT);
-  digitalWrite(12, HIGH);
-  delay(100);
-  
   Serial.begin(9600);  
   while(!Serial);
   
@@ -74,3 +67,4 @@ void loop() {
   
   delay(10);
 }
+
