@@ -444,29 +444,17 @@ setCPI: set CPI level of the motion sensor.
 # parameter
 cpi: Count per Inch value
 */
-void PMW3389::setCPI(unsigned int cpi) {
-  int cpival = constrain((cpi / 100) - 1, 0, 0x77); // limits to 0--119
-  //_CPI = (cpival + 1)*100;
-
+void PMW3389::setCPI(uint16_t cpi) {
+      uint16_t cpival = constrain((cpi / 50) - 1, 0, 0x013f);
   SPI_BEGIN;
-  adns_write_reg(REG_Config1, cpival);
+  adns_write_reg(REG_Resolution_H, (cpival >> 8) & 0xff);
+  adns_write_reg(REG_Resolution_L, cpival & 0xff);
   SPI_END;
 }
 
 // public
 /*
 getCPI: get CPI level of the motion sensor.
-
-# retrun
-cpi: Count per Inch value
-*/
-unsigned int PMW3389::getCPI() {
-  SPI_BEGIN;
-  int cpival = adns_read_reg(REG_Config1);
-  SPI_END;
-
-  return (cpival + 1) * 100;
-}
 
 // public
 /*
