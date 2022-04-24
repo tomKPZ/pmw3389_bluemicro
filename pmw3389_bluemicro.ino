@@ -20,12 +20,9 @@ void setup() {
   while (!Serial) {
   }
 
-  if (sensor.begin(SS, 16000)) // 10 is the pin connected to SS of the module.
-    Serial.println("Sensor initialization successed");
-  else
-    Serial.println("Sensor initialization failed");
-
   // init_bluetooth();
+
+  sensor.begin(SS, 16000);
 }
 
 void init_bluetooth() {

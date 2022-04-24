@@ -1,4 +1,4 @@
-# PMW3389 Module Library for Arduino
+#PMW3389 Module Library for Arduino
 
 This library allows an Arduino board to easily communicate with PMW3389 Module.
 This library is designed for https://www.tindie.com/products/jkicklighter/pmw3389-motion-sensor/
@@ -8,7 +8,7 @@ For the most basic example, please take look at [basic_polling] example.
 [basic_interrupt] example is using movement interrupt pin (MT) on the module. It does SPI transmission only if any movement is detects.
 [HID_mouse] example will work as a regular mouse with left/right buttons.
 
-# PMW3389 class
+#PMW3389 class
 * void begin(unsigned int ss_pin, unsigned int CPI = 800)
   * Initialize the sensor. ss_pin is Slave Select pin on the module. Optionally CPI value can be set.
 * void setCPI(unsigned int newCPI); / unsigned int getCPI();
@@ -37,7 +37,7 @@ For the most basic example, please take look at [basic_polling] example.
 Notice: some part of the code is based on https://github.com/mrjohnk/PMW3389DM-T2QU
 Disclaimer: This is not a PixArt official library. USE AT YOUR OWN RISK.
 
-# License
+#License
 
 Copyright (c) Sunjun Kim. All right reserved.
 
@@ -55,7 +55,7 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-# Update log
+#Update log
 * v1.0.0
   * Initial release
 
@@ -66,4 +66,3 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 * v1.1.0
   * Raw frame capture functions are updated (prepareImage, readImagePixel, endImage).
   * 'Camera' example is added
-

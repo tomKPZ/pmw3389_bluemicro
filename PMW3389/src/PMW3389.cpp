@@ -373,7 +373,8 @@ const unsigned char firmware_data[] PROGMEM = {
     0x19, 0x91, 0x81, 0x80, 0x63, 0x44, 0xeb, 0x35, 0xc9, 0x10, 0x83, 0x65,
     0x48, 0x12, 0xa6, 0xce, 0x1e, 0x9f, 0xbc, 0xdb, 0x15, 0x89, 0x71, 0x60,
     0x23, 0xc4, 0xeb, 0x54, 0x2a, 0xb7, 0xec, 0x5a, 0x36, 0xcf, 0x81, 0x10,
-    0xac, 0x74};
+    0xac, 0x74,
+};
 
 //================================================================================
 //	PMW3389 Motion Sensor Module
@@ -389,7 +390,7 @@ begin: initalize variables, prepare the sensor to be init.
 ss_pin: The arduino pin that is connected to slave select on the module.
 CPI: initial CPI. optional.
 */
-bool PMW3389::begin(unsigned int ss_pin, unsigned int CPI) {
+void PMW3389::begin(unsigned int ss_pin, unsigned int CPI) {
   _ss = ss_pin;
   _inBurst = false;
   pinMode(_ss, OUTPUT);
@@ -433,8 +434,6 @@ bool PMW3389::begin(unsigned int ss_pin, unsigned int CPI) {
 
   delay(10);
   setCPI(CPI);
-
-  return check_signature();
 }
 
 // public
@@ -445,7 +444,7 @@ setCPI: set CPI level of the motion sensor.
 cpi: Count per Inch value
 */
 void PMW3389::setCPI(uint16_t cpi) {
-      uint16_t cpival = constrain((cpi / 50) - 1, 0, 0x013f);
+  uint16_t cpival = constrain((cpi / 50) - 1, 0, 0x013f);
   SPI_BEGIN;
   adns_write_reg(REG_Resolution_H, (cpival >> 8) & 0xff);
   adns_write_reg(REG_Resolution_L, cpival & 0xff);
@@ -633,24 +632,6 @@ void PMW3389::adns_upload_firmware() {
   adns_write_reg(REG_Config2, 0x00);
 
   END_COM;
-}
-
-/*
-check_signature: check whether SROM is successfully loaded
-
-return: true if the rom is loaded correctly.
-*/
-bool PMW3389::check_signature() {
-  SPI_BEGIN;
-
-  byte pid = adns_read_reg(REG_Product_ID);
-  byte iv_pid = adns_read_reg(REG_Inverse_Product_ID);
-  byte SROM_ver = adns_read_reg(REG_SROM_ID);
-
-  SPI_END;
-
-  return (pid == 0x42 && iv_pid == 0xBD &&
-          SROM_ver == 0x04); // signature for SROM 0x04
 }
 
 /*
