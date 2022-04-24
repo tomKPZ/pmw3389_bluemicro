@@ -1,3 +1,5 @@
+#include <bluefruit.h>
+
 #include "PMW3389/src/PMW3389.h"
 // This is a hack to workaround the seeming inability to add this file
 // to the build.
@@ -5,12 +7,14 @@
 
 #define SS 28
 
+BLEDis bledis;
+BLEHidAdafruit blehid;
+
 PMW3389 sensor;
 
 void setup() {
   pinMode(12, OUTPUT);
   digitalWrite(12, HIGH);
-  delay(100);
 
   Serial.begin(9600);
   while (!Serial) {}
