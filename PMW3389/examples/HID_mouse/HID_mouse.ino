@@ -1,5 +1,5 @@
 #include <Mouse.h>
-#include <PMW3360.h>
+#include <PMW3389.h>
 
 // WARNING: This example works only in Native USB supporting boards (e.g.,
 // Micro, Leonardo, etc.)
@@ -15,12 +15,12 @@
   * GD = Ground
   * VI = Voltage in up to +5.5V
 
-  # PMW3360 Module
+  # PMW3389 Module
 Module   Arduino
   RS --- (NONE)
   GD --- GND
   MT --- (NONE)
-  SS --- Pin_10   (use this pin to initialize a PMW3360 instance)
+  SS --- Pin_10   (use this pin to initialize a PMW3389 instance)
   SC --- SCK
   MO --- MOSI
   MI --- MISO
@@ -30,18 +30,18 @@ Module   Arduino
   Button 1: Common pin - GND / Normally Open pin - Arduino Pin_2
   Button 2: Common pin - GND / Normally Open pin - Arduino Pin_3
 
-# PMW3360_DATA struct format and description
-  - PMW3360_DATA.isMotion      : bool, True if a motion is detected.
-  - PMW3360_DATA.isOnSurface   : bool, True when a chip is on a surface
-  - PMW3360_DATA.dx, data.dy   : integer, displacement on x/y directions.
-  - PMW3360_DATA.SQUAL         : byte, Surface Quality register, max 0x80
+# PMW3389_DATA struct format and description
+  - PMW3389_DATA.isMotion      : bool, True if a motion is detected.
+  - PMW3389_DATA.isOnSurface   : bool, True when a chip is on a surface
+  - PMW3389_DATA.dx, data.dy   : integer, displacement on x/y directions.
+  - PMW3389_DATA.SQUAL         : byte, Surface Quality register, max 0x80
                                * Number of features on the surface = SQUAL * 8
-  - PMW3360_DATA.rawDataSum    : byte, It reports the upper byte of an 18‐bit
+  - PMW3389_DATA.rawDataSum    : byte, It reports the upper byte of an 18‐bit
 counter which sums all 1296 raw data in the current frame;
                                * Avg value = Raw_Data_Sum * 1024 / 1296
-  - PMW3360_DATA.maxRawData    : byte, Max/Min raw data value in current frame,
-max=127 PMW3360_DATA.minRawData
-  - PMW3360_DATA.shutter       : unsigned int, shutter is adjusted to keep the
+  - PMW3389_DATA.maxRawData    : byte, Max/Min raw data value in current frame,
+max=127 PMW3389_DATA.minRawData
+  - PMW3389_DATA.shutter       : unsigned int, shutter is adjusted to keep the
 average raw data values within normal operating ranges.
  */
 
@@ -58,7 +58,7 @@ int btn_pins[NUMBTN] = {BTN1, BTN2};
 char btn_keys[NUMBTN] = {MOUSE_LEFT, MOUSE_RIGHT};
 
 // Don't need touch below.
-PMW3360 sensor;
+PMW3389 sensor;
 
 // button pins & debounce buffers
 bool btn_state[NUMBTN] = {false, false};
@@ -90,7 +90,7 @@ void setup() {
 void loop() {
   check_buttons_state();
 
-  PMW3360_DATA data = sensor.readBurst();
+  PMW3389_DATA data = sensor.readBurst();
   if (data.isOnSurface && data.isMotion) {
     int mdx = constrain(data.dx, -127, 127);
     int mdy = constrain(data.dy, -127, 127);

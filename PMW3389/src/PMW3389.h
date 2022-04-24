@@ -1,5 +1,5 @@
 /*
-  PMW3366.h - Library for interfacing PMW3360 motion sensor module
+  PMW3366.h - Library for interfacing PMW3389 motion sensor module
 
   Copyright (c) 2019, Sunjun Kim
 
@@ -18,8 +18,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef PMW3360_LIB
-#define PMW3360_LIB
+#ifndef PMW3389_LIB
+#define PMW3389_LIB
 
 #if ARDUINO >= 100
 #include "Arduino.h"
@@ -101,20 +101,20 @@ which sums all 1296 raw data in the current frame;
 keep the average raw data values within normal operating ranges
 
 Struct description
-- PMW3360_DATA.isMotion      : bool, True if a motion is detected.
-- PMW3360_DATA.isOnSurface   : bool, True when a chip is on a surface
-- PMW3360_DATA.dx, data.dy   : integer, displacement on x/y directions.
-- PMW3360_DATA.SQUAL         : byte, Surface Quality register, max 0x80
+- PMW3389_DATA.isMotion      : bool, True if a motion is detected.
+- PMW3389_DATA.isOnSurface   : bool, True when a chip is on a surface
+- PMW3389_DATA.dx, data.dy   : integer, displacement on x/y directions.
+- PMW3389_DATA.SQUAL         : byte, Surface Quality register, max 0x80
                        * Number of features on the surface = SQUAL * 8
-- PMW3360_DATA.rawDataSum    : byte, It reports the upper byte of an 18‐bit
+- PMW3389_DATA.rawDataSum    : byte, It reports the upper byte of an 18‐bit
 counter which sums all 1296 raw data in the current frame;
                        * Avg value = Raw_Data_Sum * 1024 / 1296
-- PMW3360_DATA.maxRawData    : byte, Max/Min raw data value in current frame,
-max=127 PMW3360_DATA.minRawData
-- PMW3360_DATA.shutter       : unsigned int, shutter is adjusted to keep the
+- PMW3389_DATA.maxRawData    : byte, Max/Min raw data value in current frame,
+max=127 PMW3389_DATA.minRawData
+- PMW3389_DATA.shutter       : unsigned int, shutter is adjusted to keep the
 average raw data values within normal operating ranges.
 */
-struct PMW3360_DATA {
+struct PMW3389_DATA {
   bool isMotion;    // True if a motion is detected.
   bool isOnSurface; // True when a chip is on a surface
   int8_t dx;  // displacement on x directions. Unit: Count. (CPI * Count = Inch
@@ -132,9 +132,9 @@ struct PMW3360_DATA {
                         // values within normal operating ranges.
 };
 
-class PMW3360 {
+class PMW3389 {
 public:
-  PMW3360(); // set CPI to 800 by default.
+  PMW3389(); // set CPI to 800 by default.
   // begin: initialize the module, ss_pin: slave select pin, CPI: initial Count
   // Per Inch
   bool begin(unsigned int ss_pin, unsigned int CPI = 800);
@@ -142,7 +142,7 @@ public:
   void setCPI(unsigned int newCPI);
   // setCPI: get CPI value (it does read CPI register from the module)
   unsigned int getCPI();
-  PMW3360_DATA readBurst();
+  PMW3389_DATA readBurst();
   byte readReg(byte reg_addr);
   void writeReg(byte reg_addr, byte data);
   void prepareImage();

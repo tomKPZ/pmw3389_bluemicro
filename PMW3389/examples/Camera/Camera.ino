@@ -1,4 +1,4 @@
-#include <PMW3360.h>
+#include <PMW3389.h>
 /*
 Frame capture (=Camera) mode:
 This mode disables navigation and overwrites any downloaded firmware.
@@ -19,7 +19,7 @@ Module   Arduino
   RS --- (NONE)
   GD --- GND
   MT --- (NONE)
-  SS --- Pin_10   (use this pin to initialize a PMW3360 instance)
+  SS --- Pin_10   (use this pin to initialize a PMW3389 instance)
   SC --- SCK
   MO --- MOSI
   MI --- MISO
@@ -28,7 +28,7 @@ Module   Arduino
 
 #define SS 10 // Slave Select pin. Connect this to SS on the module.
 
-PMW3360 sensor;
+PMW3389 sensor;
 
 void setup() {
   Serial.begin(9600);
