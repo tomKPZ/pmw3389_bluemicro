@@ -5,16 +5,20 @@
 // to the build.
 #include "PMW3389/src/PMW3389.cpp"
 
-#define SS 28
-
 BLEDis bledis;
 BLEHidAdafruit blehid;
 
-PMW3389 sensor;
+PMW3389 sensor1;
+PMW3389 sensor2;
 
 void setup() {
   pinMode(12, OUTPUT);
   digitalWrite(12, HIGH);
+
+  pinMode(3, OUTPUT);
+  digitalWrite(3, HIGH);
+  pinMode(28, OUTPUT);
+  digitalWrite(28, HIGH);
 
   Serial.begin(115200);
   while (!Serial) {
@@ -22,7 +26,8 @@ void setup() {
 
   // init_bluetooth();
 
-  sensor.begin(SS, 16000);
+  sensor1.begin(3, 16000);
+  sensor2.begin(28, 16000);
 }
 
 void init_bluetooth() {
@@ -72,15 +77,21 @@ void startAdv() {
 }
 
 void loop() {
-  PMW3389_DATA data = sensor.readBurst();
+  PMW3389_DATA data1 = sensor1.readBurst();
+  PMW3389_DATA data2 = sensor2.readBurst();
 
-  if (data.isOnSurface && data.isMotion) {
-    Serial.print(data.dx);
+  if (data1.isOnSurface && data2.isOnSurface &&
+      (data1.isMotion || data2.isMotion)) {
+    Serial.print(data1.dx);
     Serial.print("\t");
-    Serial.print(data.dy);
+    Serial.print(data2.dy);
+    Serial.print("\t");
+    Serial.print(data1.dx);
+    Serial.print("\t");
+    Serial.print(data2.dy);
     Serial.println();
 
-    blehid.mouseMove(data.dx, data.dy);
+    blehid.mouseMove(data1.dx + data2.dx, data1.dy + data2.dy);
   }
 
   delay(10);
