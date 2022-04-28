@@ -21,10 +21,8 @@ void setup() {
   digitalWrite(28, HIGH);
 
   Serial.begin(115200);
-  while (!Serial) {
-  }
 
-  // init_bluetooth();
+  init_bluetooth();
 
   sensor1.begin(3, 16000);
   sensor2.begin(28, 16000);
