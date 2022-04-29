@@ -29,28 +29,28 @@ uint8_t const hid_report_descriptor[] = {
         HID_REPORT_SIZE ( 3                                      ) ,
         HID_INPUT       ( HID_CONSTANT                           ) ,
       HID_USAGE_PAGE  ( HID_USAGE_PAGE_DESKTOP )                   ,
-        /* X, Y position [-127, 127] */ 
+        /* X, Y position [-32767, 32767] */ 
         HID_USAGE       ( HID_USAGE_DESKTOP_X                    ) ,
         HID_USAGE       ( HID_USAGE_DESKTOP_Y                    ) ,
-        HID_LOGICAL_MIN ( 0x81                                   ) ,
-        HID_LOGICAL_MAX ( 0x7f                                   ) ,
+        HID_LOGICAL_MIN_N ( 0x8001, 2                                   ) ,
+        HID_LOGICAL_MAX_N ( 0x7fff, 2                                   ) ,
         HID_REPORT_COUNT( 2                                      ) ,
-        HID_REPORT_SIZE ( 8                                      ) ,
+        HID_REPORT_SIZE ( 16                                      ) ,
         HID_INPUT       ( HID_DATA | HID_VARIABLE | HID_RELATIVE ) ,
-        /* Verital wheel scroll [-127, 127] */ 
+        /* Verital wheel scroll [-32767, 32767] */ 
         HID_USAGE       ( HID_USAGE_DESKTOP_WHEEL                )  ,
-        HID_LOGICAL_MIN ( 0x81                                   )  ,
-        HID_LOGICAL_MAX ( 0x7f                                   )  ,
+        HID_LOGICAL_MIN_N ( 0x8001,2                                   )  ,
+        HID_LOGICAL_MAX_N ( 0x7fff ,2                                )  ,
         HID_REPORT_COUNT( 1                                      )  ,
-        HID_REPORT_SIZE ( 8                                      )  ,
+        HID_REPORT_SIZE ( 16                                      )  ,
         HID_INPUT       ( HID_DATA | HID_VARIABLE | HID_RELATIVE )  ,
       HID_USAGE_PAGE  ( HID_USAGE_PAGE_CONSUMER ), 
-       /* Horizontal wheel scroll [-127, 127] */ 
+       /* Horizontal wheel scroll [-32767, 32767] */ 
         HID_USAGE_N     ( HID_USAGE_CONSUMER_AC_PAN, 2           ), 
-        HID_LOGICAL_MIN ( 0x81                                   ), 
-        HID_LOGICAL_MAX ( 0x7f                                   ), 
+        HID_LOGICAL_MIN_N ( 0x8001,2                                   ), 
+        HID_LOGICAL_MAX_N ( 0x7fff,2                                  ), 
         HID_REPORT_COUNT( 1                                      ), 
-        HID_REPORT_SIZE ( 8                                      ), 
+        HID_REPORT_SIZE ( 16                                      ), 
         HID_INPUT       ( HID_DATA | HID_VARIABLE | HID_RELATIVE ), 
     HID_COLLECTION_END                                            , 
   HID_COLLECTION_END 
@@ -59,10 +59,10 @@ uint8_t const hid_report_descriptor[] = {
 typedef struct TU_ATTR_PACKED
 {
   uint8_t buttons; /**< buttons mask for currently pressed buttons in the mouse. */
-  int8_t  x;       /**< Current delta x movement of the mouse. */
-  int8_t  y;       /**< Current delta y movement on the mouse. */
-  int8_t  wheel;   /**< Current delta wheel movement on the mouse. */
-  int8_t  pan;     // using AC Pan
+  int16_t  x;       /**< Current delta x movement of the mouse. */
+  int16_t  y;       /**< Current delta y movement on the mouse. */
+  int16_t  wheel;   /**< Current delta wheel movement on the mouse. */
+  int16_t  pan;     // using AC Pan
 } MouseReport;
 
 class BLEHidMouse : public BLEHidGeneric {
@@ -84,8 +84,7 @@ public:
 
   bool mouseReport(MouseReport *report) {
     if (isBootMode()) {
-      return bootMouseReport(BLE_CONN_HANDLE_INVALID, report,
-                             sizeof(MouseReport));
+      return false;
     } else {
       return inputReport(BLE_CONN_HANDLE_INVALID, REPORT_ID_MOUSE, report,
                          sizeof(MouseReport));
@@ -184,8 +183,8 @@ void loop() {
 
     MouseReport report = {
         .buttons = 0,
-        .x = -constrain((data1.dx + data2.dx) / 32, -127, 127),
-        .y = -constrain((data1.dy + data2.dy) / 32, -127, 127),
+        .x = -constrain((data1.dx + data2.dx) / 32, -32767, 32767),
+        .y = -constrain((data1.dy + data2.dy) / 32, -32767, 32767),
         .wheel = 0,
         .pan = 0,
     };
