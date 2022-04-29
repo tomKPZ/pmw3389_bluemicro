@@ -5,11 +5,10 @@
 // to the build.
 #include "PMW3389/src/PMW3389.cpp"
 
-enum { REPORT_ID_KEYBOARD = 1, REPORT_ID_CONSUMER_CONTROL, REPORT_ID_MOUSE };
+enum { REPORT_ID_KEYBOARD = 1, REPORT_ID_MOUSE };
 
 uint8_t const hid_report_descriptor[] = {
     TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(REPORT_ID_KEYBOARD)),
-    TUD_HID_REPORT_DESC_CONSUMER(HID_REPORT_ID(REPORT_ID_CONSUMER_CONTROL)),
     TUD_HID_REPORT_DESC_MOUSE(HID_REPORT_ID(REPORT_ID_MOUSE))};
 
 class BLEHidMouse : public BLEHidGeneric {
@@ -17,13 +16,13 @@ public:
   // Callback Signatures
   typedef void (*kbd_led_cb_t)(uint16_t conn_hdl, uint8_t leds_bitmap);
 
-  BLEHidMouse(void) : BLEHidGeneric(3, 1, 0) {
+  BLEHidMouse(void) : BLEHidGeneric(2, 1, 0) {
     _mse_buttons = 0;
     _kbd_led_cb = NULL;
   }
 
-  virtual err_t begin(void) { // keyboard, consumer, mouse
-    uint16_t input_len[] = {sizeof(hid_keyboard_report_t), 2,
+  virtual err_t begin(void) {
+    uint16_t input_len[] = {sizeof(hid_keyboard_report_t),
                             sizeof(hid_mouse_report_t)};
     uint16_t output_len[] = {1};
 
