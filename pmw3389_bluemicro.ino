@@ -5,43 +5,28 @@
 // to the build.
 #include "PMW3389/src/PMW3389.cpp"
 
-enum { REPORT_ID_KEYBOARD = 1, REPORT_ID_MOUSE };
+enum { REPORT_ID_MOUSE = 1 };
 
 uint8_t const hid_report_descriptor[] = {
-    TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(REPORT_ID_KEYBOARD)),
     TUD_HID_REPORT_DESC_MOUSE(HID_REPORT_ID(REPORT_ID_MOUSE))};
 
 class BLEHidMouse : public BLEHidGeneric {
 public:
-  // Callback Signatures
-  typedef void (*kbd_led_cb_t)(uint16_t conn_hdl, uint8_t leds_bitmap);
-
-  BLEHidMouse(void) : BLEHidGeneric(2, 1, 0) {
-    _mse_buttons = 0;
-    _kbd_led_cb = NULL;
-  }
+  BLEHidMouse(void) : BLEHidGeneric(1, 1, 0) {}
 
   virtual err_t begin(void) {
-    uint16_t input_len[] = {sizeof(hid_keyboard_report_t),
-                            sizeof(hid_mouse_report_t)};
+    uint16_t input_len[] = {sizeof(hid_mouse_report_t)};
     uint16_t output_len[] = {1};
 
     setReportLen(input_len, output_len, NULL);
-    enableKeyboard(true);
     enableMouse(true);
     setReportMap(hid_report_descriptor, sizeof(hid_report_descriptor));
 
     VERIFY_STATUS(BLEHidGeneric::begin());
 
-    // Attempt to change the connection interval to 11.25-15 ms when starting
-    // HID
-    Bluefruit.Periph.setConnInterval(9, 12);
-
     return ERROR_NONE;
   }
 
-  //------------- Mouse -------------//
-  // Single connection
   bool mouseReport(hid_mouse_report_t *report) {
     if (isBootMode()) {
       return bootMouseReport(BLE_CONN_HANDLE_INVALID, report,
@@ -51,10 +36,6 @@ public:
                          sizeof(hid_mouse_report_t));
     }
   }
-
-protected:
-  uint8_t _mse_buttons;
-  kbd_led_cb_t _kbd_led_cb;
 };
 
 BLEDis bledis;
@@ -88,7 +69,7 @@ void init_bluetooth() {
   Bluefruit.configPrphBandwidth(BANDWIDTH_MAX);
   Bluefruit.begin();
   // HID Device can have a min connection interval of 9*1.25 = 11.25 ms
-  Bluefruit.Periph.setConnInterval(9, 16);
+  Bluefruit.Periph.setConnInterval(9, 12);
   // Maximum power.
   Bluefruit.setTxPower(8);
 
