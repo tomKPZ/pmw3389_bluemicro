@@ -56,12 +56,21 @@ uint8_t const hid_report_descriptor[] = {
   HID_COLLECTION_END 
 };
 
+typedef struct TU_ATTR_PACKED
+{
+  uint8_t buttons; /**< buttons mask for currently pressed buttons in the mouse. */
+  int8_t  x;       /**< Current delta x movement of the mouse. */
+  int8_t  y;       /**< Current delta y movement on the mouse. */
+  int8_t  wheel;   /**< Current delta wheel movement on the mouse. */
+  int8_t  pan;     // using AC Pan
+} MouseReport;
+
 class BLEHidMouse : public BLEHidGeneric {
 public:
   BLEHidMouse(void) : BLEHidGeneric(1, 1, 0) {}
 
   virtual err_t begin(void) {
-    uint16_t input_len[] = {sizeof(hid_mouse_report_t)};
+    uint16_t input_len[] = {sizeof(MouseReport)};
     uint16_t output_len[] = {1};
 
     setReportLen(input_len, output_len, NULL);
@@ -73,13 +82,13 @@ public:
     return ERROR_NONE;
   }
 
-  bool mouseReport(hid_mouse_report_t *report) {
+  bool mouseReport(MouseReport *report) {
     if (isBootMode()) {
       return bootMouseReport(BLE_CONN_HANDLE_INVALID, report,
-                             sizeof(hid_mouse_report_t));
+                             sizeof(MouseReport));
     } else {
       return inputReport(BLE_CONN_HANDLE_INVALID, REPORT_ID_MOUSE, report,
-                         sizeof(hid_mouse_report_t));
+                         sizeof(MouseReport));
     }
   }
 };
@@ -173,7 +182,7 @@ void loop() {
     Serial.print(data2.dy);
     Serial.println();
 
-    hid_mouse_report_t report = {
+    MouseReport report = {
         .buttons = 0,
         .x = -constrain((data1.dx + data2.dx) / 32, -127, 127),
         .y = -constrain((data1.dy + data2.dy) / 32, -127, 127),
