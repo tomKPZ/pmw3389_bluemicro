@@ -5,8 +5,61 @@
 // to the build.
 #include "PMW3389/src/PMW3389.cpp"
 
+enum { REPORT_ID_KEYBOARD = 1, REPORT_ID_CONSUMER_CONTROL, REPORT_ID_MOUSE };
+
+uint8_t const hid_report_descriptor[] = {
+    TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(REPORT_ID_KEYBOARD)),
+    TUD_HID_REPORT_DESC_CONSUMER(HID_REPORT_ID(REPORT_ID_CONSUMER_CONTROL)),
+    TUD_HID_REPORT_DESC_MOUSE(HID_REPORT_ID(REPORT_ID_MOUSE))};
+
+class BLEHidMouse : public BLEHidGeneric {
+public:
+  // Callback Signatures
+  typedef void (*kbd_led_cb_t)(uint16_t conn_hdl, uint8_t leds_bitmap);
+
+  BLEHidMouse(void) : BLEHidGeneric(3, 1, 0) {
+    _mse_buttons = 0;
+    _kbd_led_cb = NULL;
+  }
+
+  virtual err_t begin(void) { // keyboard, consumer, mouse
+    uint16_t input_len[] = {sizeof(hid_keyboard_report_t), 2,
+                            sizeof(hid_mouse_report_t)};
+    uint16_t output_len[] = {1};
+
+    setReportLen(input_len, output_len, NULL);
+    enableKeyboard(true);
+    enableMouse(true);
+    setReportMap(hid_report_descriptor, sizeof(hid_report_descriptor));
+
+    VERIFY_STATUS(BLEHidGeneric::begin());
+
+    // Attempt to change the connection interval to 11.25-15 ms when starting
+    // HID
+    Bluefruit.Periph.setConnInterval(9, 12);
+
+    return ERROR_NONE;
+  }
+
+  //------------- Mouse -------------//
+  // Single connection
+  bool mouseReport(hid_mouse_report_t *report) {
+    if (isBootMode()) {
+      return bootMouseReport(BLE_CONN_HANDLE_INVALID, report,
+                             sizeof(hid_mouse_report_t));
+    } else {
+      return inputReport(BLE_CONN_HANDLE_INVALID, REPORT_ID_MOUSE, report,
+                         sizeof(hid_mouse_report_t));
+    }
+  }
+
+protected:
+  uint8_t _mse_buttons;
+  kbd_led_cb_t _kbd_led_cb;
+};
+
 BLEDis bledis;
-BLEHidAdafruit blehid;
+BLEHidMouse blehid;
 
 PMW3389 sensor1;
 PMW3389 sensor2;
@@ -94,8 +147,14 @@ void loop() {
     Serial.print(data2.dy);
     Serial.println();
 
-    blehid.mouseMove(-constrain((data1.dx + data2.dx) / 32, -127, 127),
-                     -constrain((data1.dy + data2.dy) / 32, -127, 127));
+    hid_mouse_report_t report = {
+        .buttons = 0,
+        .x = -constrain((data1.dx + data2.dx) / 32, -127, 127),
+        .y = -constrain((data1.dy + data2.dy) / 32, -127, 127),
+        .wheel = 0,
+        .pan = 0,
+    };
+    blehid.mouseReport(&report);
   }
 
   delay(4);
