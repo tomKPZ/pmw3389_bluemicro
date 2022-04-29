@@ -29,11 +29,16 @@ void setup() {
 }
 
 void init_bluetooth() {
+  // Increase the queue size so that we can achieve a reasonable mouse polling
+  // interval.
+  Bluefruit.configPrphConn(BLE_GATT_ATT_MTU_DEFAULT, BLE_GAP_EVENT_LENGTH_MIN,
+                           256, 256);
+  Bluefruit.configPrphBandwidth(BANDWIDTH_MAX);
   Bluefruit.begin();
   // HID Device can have a min connection interval of 9*1.25 = 11.25 ms
-  Bluefruit.Periph.setConnInterval(
-      9, 16);              // min = 9*1.25=11.25 ms, max = 16*1.25=20ms
-  Bluefruit.setTxPower(4); // Check bluefruit.h for supported values
+  Bluefruit.Periph.setConnInterval(9, 16);
+  // Maximum power.
+  Bluefruit.setTxPower(8);
 
   // Configure and Start Device Information Service
   bledis.setManufacturer("Adafruit Industries");
@@ -78,19 +83,20 @@ void loop() {
   PMW3389_DATA data1 = sensor1.readBurst();
   PMW3389_DATA data2 = sensor2.readBurst();
 
-  if (data1.isOnSurface && data2.isOnSurface &&
-      (data1.isMotion || data2.isMotion)) {
+  if ((data1.isOnSurface && data1.isMotion) ||
+      (data2.isOnSurface && data2.isMotion)) {
     Serial.print(data1.dx);
     Serial.print("\t");
-    Serial.print(data2.dy);
+    Serial.print(data1.dy);
     Serial.print("\t");
-    Serial.print(data1.dx);
+    Serial.print(data2.dx);
     Serial.print("\t");
     Serial.print(data2.dy);
     Serial.println();
 
-    blehid.mouseMove(data1.dx + data2.dx, data1.dy + data2.dy);
+    blehid.mouseMove(-constrain((data1.dx + data2.dx) / 32, -127, 127),
+                     -constrain((data1.dy + data2.dy) / 32, -127, 127));
   }
 
-  delay(10);
+  delay(4);
 }

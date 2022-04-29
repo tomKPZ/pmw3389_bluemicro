@@ -121,9 +121,9 @@ average raw data values within normal operating ranges.
 struct PMW3389_DATA {
   bool isMotion;    // True if a motion is detected.
   bool isOnSurface; // True when a chip is on a surface
-  int8_t dx;  // displacement on x directions. Unit: Count. (CPI * Count = Inch
+  int16_t dx;  // displacement on x directions. Unit: Count. (CPI * Count = Inch
               // value)
-  int8_t dy;  // displacement on y directions.
+  int16_t dy;  // displacement on y directions.
   byte SQUAL; // Surface Quality register, max 0x80. Number of features on the
               // surface = SQUAL * 8
   byte rawDataSum; // It reports the upper byte of an 18‐bit counter which sums
