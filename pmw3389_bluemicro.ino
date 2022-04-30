@@ -147,25 +147,28 @@ void startAdv() {
   Bluefruit.Advertising.start(0); // 0 = Don't stop advertising after n seconds
 }
 
+// 22.41mm / 2 * 16000/in
+const float DELTA = 7058.3;
+
+float a = 0.0;
 void loop() {
   PMW3389_DATA data1 = sensor1.readBurst();
   PMW3389_DATA data2 = sensor2.readBurst();
 
   if ((data1.isOnSurface && data1.isMotion) ||
       (data2.isOnSurface && data2.isMotion)) {
-    Serial.print(data1.dx);
-    Serial.print("\t");
-    Serial.print(data1.dy);
-    Serial.print("\t");
-    Serial.print(data2.dx);
-    Serial.print("\t");
-    Serial.print(data2.dy);
-    Serial.println();
+    float dx = (data1.dx + data2.dx) / 2.0;
+    float dy = (data1.dy + data2.dy) / 2.0;
+    float x = data1.dx - dx + DELTA;
+    float y = data1.dy - dy;
+    a += atan2(y, x);
+
+    Serial.println(a);
 
     MouseReport report = {
         .buttons = 0,
-        .x = -constrain((data1.dx + data2.dx) / 32, -32767, 32767),
-        .y = -constrain((data1.dy + data2.dy) / 32, -32767, 32767),
+        .x = -dx / 32,
+        .y = -dy / 32,
         .wheel = 0,
         .pan = 0,
     };
