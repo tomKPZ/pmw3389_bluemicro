@@ -109,6 +109,9 @@ void setup() {
   pinMode(28, OUTPUT);
   digitalWrite(28, HIGH);
 
+  pinMode(26, INPUT_PULLUP);
+  pinMode(29, INPUT_PULLUP);
+
   Serial.begin(115200);
 
   init_bluetooth();
@@ -175,6 +178,9 @@ void loop() {
   PMW3389_DATA data1 = sensor1.readBurst();
   PMW3389_DATA data2 = sensor2.readBurst();
 
+  bool l = !digitalRead(26);
+  bool r = !digitalRead(29);
+
   if ((data1.isOnSurface && data1.isMotion) ||
       (data2.isOnSurface && data2.isMotion)) {
     float dx = (data1.dx + data2.dx) / 2.0;
@@ -184,7 +190,7 @@ void loop() {
     float a = atan2(y, x);
 
     MouseReport report = {
-        .buttons = 0,
+        .buttons = (l << 0) | (r << 1),
         .x = -dx / 20,
         .y = -dy / 20,
         .wheel = a * 4096,
