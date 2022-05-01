@@ -171,7 +171,6 @@ void startAdv() {
 // 22.41mm / 2 * 16000/in
 const float DELTA = 7058.3;
 
-float a = 0.0;
 void loop() {
   PMW3389_DATA data1 = sensor1.readBurst();
   PMW3389_DATA data2 = sensor2.readBurst();
@@ -182,15 +181,13 @@ void loop() {
     float dy = (data1.dy + data2.dy) / 2.0;
     float x = data1.dx - dx + DELTA;
     float y = data1.dy - dy;
-    a += atan2(y, x);
-
-    Serial.println(a);
+    float a = atan2(y, x);
 
     MouseReport report = {
         .buttons = 0,
-        .x = -dx / 32,
-        .y = -dy / 32,
-        .wheel = 0,
+        .x = -dx / 20,
+        .y = -dy / 20,
+        .wheel = a * 4096,
         .pan = 0,
     };
     blehid.mouseReport(&report);
