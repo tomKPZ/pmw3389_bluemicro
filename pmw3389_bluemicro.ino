@@ -174,6 +174,9 @@ void startAdv() {
 // 22.41mm / 2 * 16000/in
 const float DELTA = 7058.3;
 
+float mx = 0.0;
+float my = 0.0;
+float ma = 0.0;
 void loop() {
   PMW3389_DATA data1 = sensor1.readBurst();
   PMW3389_DATA data2 = sensor2.readBurst();
@@ -181,22 +184,25 @@ void loop() {
   bool l = !digitalRead(26);
   bool r = !digitalRead(29);
 
-  if ((data1.isOnSurface && data1.isMotion) ||
-      (data2.isOnSurface && data2.isMotion)) {
+  if (data1.isOnSurface && data2.isOnSurface) {
     float dx = (data1.dx + data2.dx) / 2.0;
     float dy = (data1.dy + data2.dy) / 2.0;
-    float x = data1.dx - dx + DELTA;
-    float y = data1.dy - dy;
-    float a = atan2(y, x);
+    float a = atan2(data1.dy - dy, data1.dx - dx + DELTA);
 
+    mx -= dx / 20;
+    my -= dy / 20;
+    ma += a * 1024;
     MouseReport report = {
         .buttons = (l << 0) | (r << 1),
-        .x = -dx / 20,
-        .y = -dy / 20,
-        .wheel = a * 4096,
+        .x = mx,
+        .y = my,
+        .wheel = ma,
         .pan = 0,
     };
     blehid.mouseReport(&report);
+    mx -= (int16_t)mx;
+    my -= (int16_t)my;
+    ma -= (int16_t)ma;
   }
 
   delay(4);
